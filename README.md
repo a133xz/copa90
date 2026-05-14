@@ -13,7 +13,7 @@ A professional, high-performance media ingestion and backup application built fo
 
 ## Global Sequential Folder Structure
 
-The application automatically organizes footage into a standardized hierarchy. Roll numbers are tracked globally across all days, ensuring that a new shoot day continues from the last used number.
+The application automatically organizes footage into a standardized hierarchy. All necessary directories—including Day, Camera, and Roll folders—are created automatically during the ingestion process. Roll numbers are tracked globally across all days, ensuring that a new shoot day continues from the last used number.
 
 ```mermaid
 graph TD
