@@ -31,7 +31,7 @@ function App() {
     refreshVolumes();
     
     const unlistenOutput = listen('rsync-output', (event) => {
-      setOutput(prev => [...prev.slice(-100), event.payload as string]);
+      setOutput(prev => [...prev.slice(-50), event.payload as string]);
     });
 
     const unlistenFinished = listen('rsync-finished', (event) => {
@@ -83,7 +83,7 @@ function App() {
       const sourcePath = `/Volumes/${sourceDrive}`;
 
       setLastPath(finalDest);
-      setOutput([`TARGET: ${finalDest}`, `STATUS: INITIALIZING INGEST`]);
+      setOutput([`Target: ${finalDest}`, `Status: Initializing ingest...`]);
 
       await invoke('start_rsync', {
         source: sourcePath,
@@ -107,7 +107,7 @@ function App() {
       const destPath = `/Volumes/${destDrive}`;
 
       setLastPath(`/Volumes/${destDrive}`);
-      setOutput([`SOURCE: ${sourceDrive}`, `TARGET: ${destDrive}`, `STATUS: MIRRORING`]);
+      setOutput([`Source: ${sourceDrive}`, `Target: ${destDrive}`, `Status: Mirroring...`]);
 
       await invoke('start_rsync', {
         source: sourcePath,
@@ -136,65 +136,66 @@ function App() {
           className={`nav-item ${view === 'ingest' ? 'active' : ''}`}
           onClick={() => setView('ingest')}
         >
-          <FolderDown size={18} strokeWidth={2.5} />
-          INGEST
+          <FolderDown size={16} />
+          Media Ingest
         </div>
         
         <div 
           className={`nav-item ${view === 'backup' ? 'active' : ''}`}
           onClick={() => setView('backup')}
         >
-          <ArrowLeftRight size={18} strokeWidth={2.5} />
-          BACKUP
+          <ArrowLeftRight size={16} />
+          Drive Sync
         </div>
 
-        <div style={{ marginTop: 'auto' }}>
+        <div style={{ marginTop: 'auto', marginBottom: '8px' }}>
            <div className="nav-item" onClick={refreshVolumes}>
-            <RefreshCw size={18} strokeWidth={2.5} className={isProcessing ? 'pulse' : ''} />
-            RESCAN DRIVES
+            <RefreshCw size={16} className={isProcessing ? 'spin' : ''} />
+            Refresh Drives
           </div>
         </div>
       </aside>
 
       <main className="main-content">
         {view === 'ingest' ? (
-          <div>
+          <>
             <div className="view-header">
-              <h1>MEDIA INGEST</h1>
-              <p>TRANSFER MEDIA TO PRODUCTION DRIVE</p>
+              <h1>Media Ingest</h1>
             </div>
 
-            <div className="grid">
-              <div className="card">
-                <div className="form-group">
-                  <label className="label">SOURCE (SD CARD)</label>
+            <div className="card">
+              <div className="row">
+                <div className="col">
+                  <label className="label">Source (SD Card)</label>
                   <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
-                    <option value="">SELECT SOURCE...</option>
+                    <option value="">Select source...</option>
                     {volumes.map(v => <option key={v} value={v}>{v}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="label">DESTINATION DRIVE</label>
+                <div className="col">
+                  <label className="label">Destination Drive</label>
                   <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
-                    <option value="">SELECT DESTINATION...</option>
+                    <option value="">Select destination...</option>
                     {volumes.map(v => <option key={v} value={v}>{v}</option>)}
                   </select>
                 </div>
               </div>
+            </div>
 
-              <div className="card">
-                <div className="form-group">
-                  <label className="label">DAY NUMBER</label>
+            <div className="card">
+              <div className="row" style={{ alignItems: 'flex-end' }}>
+                <div className="col" style={{ flex: '0 0 100px' }}>
+                  <label className="label">Day</label>
                   <input 
                     type="number" 
                     min="1" 
                     value={day} 
                     onChange={e => setDay(e.target.value)} 
-                    placeholder="e.g. 1"
+                    placeholder="1"
                   />
                 </div>
-                <div className="form-group">
-                  <label className="label">CAMERA ID</label>
+                <div className="col">
+                  <label className="label">Camera ID</label>
                   <div className="btn-group">
                     {['A', 'B', 'C', 'D'].map(letter => (
                       <button 
@@ -212,34 +213,33 @@ function App() {
 
             <button 
               className="btn btn-primary" 
-              style={{ width: '100%', padding: '24px', fontSize: '20px' }}
+              style={{ padding: '16px', fontSize: '14px', marginTop: '8px' }}
               disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
               onClick={handleStartIngest}
             >
-              {isProcessing ? <RefreshCw className="pulse" size={24} strokeWidth={3} /> : <Play size={24} strokeWidth={3} />}
-              {isProcessing ? 'PROCESSING...' : 'EXECUTE INGEST'}
+              {isProcessing ? <RefreshCw className="spin" size={18} /> : <Play size={18} />}
+              {isProcessing ? 'Processing Ingest...' : 'Start Ingest'}
             </button>
-          </div>
+          </>
         ) : (
-          <div>
+          <>
             <div className="view-header">
-              <h1>DRIVE BACKUP</h1>
-              <p>EXACT MIRROR VIA RSYNC --DELETE</p>
+              <h1>Drive Sync</h1>
             </div>
 
-            <div className="card" style={{ marginBottom: '24px' }}>
-              <div className="grid" style={{ marginBottom: 0 }}>
-                <div className="form-group">
-                  <label className="label">MASTER DRIVE</label>
+            <div className="card">
+              <div className="row">
+                <div className="col">
+                  <label className="label">Main Drive (Source)</label>
                   <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
-                    <option value="">SELECT MASTER...</option>
+                    <option value="">Select main...</option>
                     {volumes.map(v => <option key={v} value={v}>{v}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="label">BACKUP DRIVE</label>
+                <div className="col">
+                  <label className="label">Backup Drive (Destination)</label>
                   <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
-                    <option value="">SELECT BACKUP...</option>
+                    <option value="">Select backup...</option>
                     {volumes.map(v => <option key={v} value={v}>{v}</option>)}
                   </select>
                 </div>
@@ -248,47 +248,51 @@ function App() {
             
             <button 
               className="btn btn-primary" 
-              style={{ width: '100%', padding: '24px', fontSize: '20px' }}
+              style={{ padding: '16px', fontSize: '14px', marginTop: '8px' }}
               disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
               onClick={handleStartBackup}
             >
-              {isProcessing ? <RefreshCw className="pulse" size={24} strokeWidth={3} /> : <ArrowLeftRight size={24} strokeWidth={3} />}
-              {isProcessing ? 'SYNCING...' : 'EXECUTE MIRROR'}
+              {isProcessing ? <RefreshCw className="spin" size={18} /> : <ArrowLeftRight size={18} />}
+              {isProcessing ? 'Syncing...' : 'Start Sync (Mirror)'}
             </button>
-          </div>
+          </>
         )}
 
-        {status !== 'idle' && (
-          <div style={{ marginTop: '40px' }}>
-            <div className="status-bar">
-              <div className="status-indicator">
-                {status === 'running' && <RefreshCw className="pulse" size={16} strokeWidth={3} />}
-                {status === 'success' && <SquareTerminal size={16} strokeWidth={3} />}
-                {status === 'error' && <AlertTriangle size={16} strokeWidth={3} />}
-                <span>
-                  {status === 'running' ? 'SYSTEM: ACTIVE' : status === 'success' ? 'SYSTEM: COMPLETE' : 'SYSTEM: ERROR'}
-                </span>
+        <div className="status-section">
+          {status !== 'idle' && (
+            <>
+              <div className={`status-bar ${status === 'running' ? 'has-log' : ''}`} style={{ borderColor: status === 'error' ? '#ef4444' : status === 'success' ? '#22c55e' : 'var(--border)' }}>
+                <div className="status-indicator">
+                  {status === 'running' && <RefreshCw className="spin" size={14} color="var(--focus)" />}
+                  {status === 'success' && <SquareTerminal size={14} color="#22c55e" />}
+                  {status === 'error' && <AlertTriangle size={14} color="#ef4444" />}
+                  <span style={{ color: status === 'error' ? '#ef4444' : status === 'success' ? '#22c55e' : 'var(--fg)' }}>
+                    {status === 'running' ? 'System Active' : status === 'success' ? 'Task Complete' : 'Task Failed'}
+                  </span>
+                </div>
+                
+                {status === 'success' && lastPath && (
+                  <button 
+                    className="btn btn-ghost" 
+                    style={{ padding: '4px 10px', fontSize: '11px', height: 'auto', border: '1px solid var(--border)' }}
+                    onClick={openFolder}
+                  >
+                    <ExternalLink size={12} />
+                    Reveal in Finder
+                  </button>
+                )}
               </div>
               
-              {status === 'success' && lastPath && (
-                <button 
-                  className="btn" 
-                  style={{ width: 'auto', padding: '6px 12px', fontSize: '12px', height: 'auto' }}
-                  onClick={openFolder}
-                >
-                  <ExternalLink size={14} strokeWidth={2.5} />
-                  OPEN FOLDER
-                </button>
+              {status === 'running' && (
+                <div className="output-log" ref={outputRef}>
+                  {output.map((line, i) => (
+                    <div key={i} className="output-line">{line}</div>
+                  ))}
+                </div>
               )}
-            </div>
-            
-            <div className="output-log" ref={outputRef}>
-              {output.map((line, i) => (
-                <div key={i} className="output-line">{line}</div>
-              ))}
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </main>
     </div>
   );
