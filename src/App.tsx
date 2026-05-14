@@ -6,13 +6,11 @@ import {
   FolderDown, 
   ArrowLeftRight, 
   Play, 
-  CheckCircle, 
-  AlertCircle,
+  SquareTerminal,
+  AlertTriangle,
   RefreshCw,
-  Calendar,
   ExternalLink
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 type View = 'ingest' | 'backup';
 
@@ -85,7 +83,7 @@ function App() {
       const sourcePath = `/Volumes/${sourceDrive}`;
 
       setLastPath(finalDest);
-      setOutput([`Target: ${finalDest}`, `Starting ingest...`]);
+      setOutput([`TARGET: ${finalDest}`, `STATUS: INITIALIZING INGEST`]);
 
       await invoke('start_rsync', {
         source: sourcePath,
@@ -109,7 +107,7 @@ function App() {
       const destPath = `/Volumes/${destDrive}`;
 
       setLastPath(`/Volumes/${destDrive}`);
-      setOutput([`Mirroring ${sourceDrive} to ${destDrive}...`]);
+      setOutput([`SOURCE: ${sourceDrive}`, `TARGET: ${destDrive}`, `STATUS: MIRRORING`]);
 
       await invoke('start_rsync', {
         source: sourcePath,
@@ -138,173 +136,148 @@ function App() {
           className={`nav-item ${view === 'ingest' ? 'active' : ''}`}
           onClick={() => setView('ingest')}
         >
-          <FolderDown size={20} />
-          Ingest
+          <FolderDown size={18} strokeWidth={2.5} />
+          INGEST
         </div>
         
         <div 
           className={`nav-item ${view === 'backup' ? 'active' : ''}`}
           onClick={() => setView('backup')}
         >
-          <ArrowLeftRight size={20} />
-          Backup
+          <ArrowLeftRight size={18} strokeWidth={2.5} />
+          BACKUP
         </div>
 
         <div style={{ marginTop: 'auto' }}>
            <div className="nav-item" onClick={refreshVolumes}>
-            <RefreshCw size={20} className={isProcessing ? 'pulse' : ''} />
-            Refresh Drives
+            <RefreshCw size={18} strokeWidth={2.5} className={isProcessing ? 'pulse' : ''} />
+            RESCAN DRIVES
           </div>
         </div>
       </aside>
 
       <main className="main-content">
-        <AnimatePresence mode="wait">
-          {view === 'ingest' ? (
-            <motion.div 
-              key="ingest"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <div className="view-header">
-                <h1>Media Ingest</h1>
-                <p>Transfer footage from SD card to production drive.</p>
-              </div>
+        {view === 'ingest' ? (
+          <div>
+            <div className="view-header">
+              <h1>MEDIA INGEST</h1>
+              <p>TRANSFER MEDIA TO PRODUCTION DRIVE</p>
+            </div>
 
-              <div className="grid">
-                <div className="card">
-                  <div className="form-group">
-                    <label className="label">Source Drive (SD Card)</label>
-                    <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
-                      <option value="">Select source...</option>
-                      {volumes.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="label">Destination Drive</label>
-                    <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
-                      <option value="">Select destination...</option>
-                      {volumes.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                  </div>
+            <div className="grid">
+              <div className="card">
+                <div className="form-group">
+                  <label className="label">SOURCE (SD CARD)</label>
+                  <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
+                    <option value="">SELECT SOURCE...</option>
+                    {volumes.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
                 </div>
-
-                <div className="card">
-                  <div className="form-group">
-                    <label className="label">Day Number</label>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <Calendar size={18} color="#a1a1aa" />
-                      <input 
-                        type="number" 
-                        min="1" 
-                        value={day} 
-                        onChange={e => setDay(e.target.value)} 
-                        placeholder="e.g. 1"
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="label">Camera Letter</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      {['A', 'B', 'C', 'D'].map(letter => (
-                        <button 
-                          key={letter}
-                          className={`btn btn-secondary ${camera === letter ? 'active' : ''}`}
-                          style={{ 
-                            padding: '8px 16px', 
-                            flex: 1,
-                            borderColor: camera === letter ? 'var(--primary)' : 'var(--card-border)',
-                            color: camera === letter ? 'var(--primary)' : 'white'
-                          }}
-                          onClick={() => setCamera(letter)}
-                        >
-                          {letter}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label className="label">DESTINATION DRIVE</label>
+                  <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
+                    <option value="">SELECT DESTINATION...</option>
+                    {volumes.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
                 </div>
               </div>
 
               <div className="card">
-                <button 
-                  className="btn" 
-                  disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
-                  onClick={handleStartIngest}
-                >
-                  {isProcessing ? <RefreshCw className="pulse" size={20} /> : <Play size={20} />}
-                  {isProcessing ? 'Ingesting...' : 'Start Ingest'}
-                </button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="backup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <div className="view-header">
-                <h1>Drive Backup</h1>
-                <p>Mirror master drive to backup drive (rsync --delete).</p>
-              </div>
-
-              <div className="card">
-                <div className="grid">
-                  <div className="form-group">
-                    <label className="label">Source (Master)</label>
-                    <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
-                      <option value="">Select master...</option>
-                      {volumes.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="label">Destination (Backup)</label>
-                    <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
-                      <option value="">Select backup...</option>
-                      {volumes.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
+                <div className="form-group">
+                  <label className="label">DAY NUMBER</label>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    value={day} 
+                    onChange={e => setDay(e.target.value)} 
+                    placeholder="e.g. 1"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="label">CAMERA ID</label>
+                  <div className="btn-group">
+                    {['A', 'B', 'C', 'D'].map(letter => (
+                      <button 
+                        key={letter}
+                        className={`btn ${camera === letter ? 'active' : ''}`}
+                        onClick={() => setCamera(letter)}
+                      >
+                        {letter}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                
-                <button 
-                  className="btn btn-accent" 
-                  disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
-                  onClick={handleStartBackup}
-                >
-                  {isProcessing ? <RefreshCw className="pulse" size={20} /> : <ArrowLeftRight size={20} />}
-                  {isProcessing ? 'Syncing...' : 'Sync Drives'}
-                </button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '24px', fontSize: '20px' }}
+              disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
+              onClick={handleStartIngest}
+            >
+              {isProcessing ? <RefreshCw className="pulse" size={24} strokeWidth={3} /> : <Play size={24} strokeWidth={3} />}
+              {isProcessing ? 'PROCESSING...' : 'EXECUTE INGEST'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="view-header">
+              <h1>DRIVE BACKUP</h1>
+              <p>EXACT MIRROR VIA RSYNC --DELETE</p>
+            </div>
+
+            <div className="card" style={{ marginBottom: '24px' }}>
+              <div className="grid" style={{ marginBottom: 0 }}>
+                <div className="form-group">
+                  <label className="label">MASTER DRIVE</label>
+                  <select value={sourceDrive} onChange={e => setSourceDrive(e.target.value)}>
+                    <option value="">SELECT MASTER...</option>
+                    {volumes.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="label">BACKUP DRIVE</label>
+                  <select value={destDrive} onChange={e => setDestDrive(e.target.value)}>
+                    <option value="">SELECT BACKUP...</option>
+                    {volumes.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '24px', fontSize: '20px' }}
+              disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
+              onClick={handleStartBackup}
+            >
+              {isProcessing ? <RefreshCw className="pulse" size={24} strokeWidth={3} /> : <ArrowLeftRight size={24} strokeWidth={3} />}
+              {isProcessing ? 'SYNCING...' : 'EXECUTE MIRROR'}
+            </button>
+          </div>
+        )}
 
         {status !== 'idle' && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card"
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {status === 'running' && <RefreshCw className="pulse" size={18} color="var(--primary)" />}
-                {status === 'success' && <CheckCircle size={18} color="var(--accent)" />}
-                {status === 'error' && <AlertCircle size={18} color="var(--danger)" />}
-                <span style={{ fontWeight: 600 }}>
-                  {status === 'running' ? 'Process Output' : status === 'success' ? 'Task Completed' : 'Task Failed'}
+          <div style={{ marginTop: '40px' }}>
+            <div className="status-bar">
+              <div className="status-indicator">
+                {status === 'running' && <RefreshCw className="pulse" size={16} strokeWidth={3} />}
+                {status === 'success' && <SquareTerminal size={16} strokeWidth={3} />}
+                {status === 'error' && <AlertTriangle size={16} strokeWidth={3} />}
+                <span>
+                  {status === 'running' ? 'SYSTEM: ACTIVE' : status === 'success' ? 'SYSTEM: COMPLETE' : 'SYSTEM: ERROR'}
                 </span>
               </div>
               
               {status === 'success' && lastPath && (
                 <button 
-                  className="btn btn-secondary" 
-                  style={{ width: 'auto', padding: '6px 12px', fontSize: '13px' }}
+                  className="btn" 
+                  style={{ width: 'auto', padding: '6px 12px', fontSize: '12px', height: 'auto' }}
                   onClick={openFolder}
                 >
-                  <ExternalLink size={14} />
-                  Show in Finder
+                  <ExternalLink size={14} strokeWidth={2.5} />
+                  OPEN FOLDER
                 </button>
               )}
             </div>
@@ -314,7 +287,7 @@ function App() {
                 <div key={i} className="output-line">{line}</div>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </main>
     </div>

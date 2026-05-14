@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "COPA",
-        "width": 1000,
-        "height": 800
+        "width": 640,
+        "height": 560
       }
     ],
     "security": {
