@@ -145,7 +145,7 @@ body {
 /* Inputs & Selects */
 select, input {
   width: 100%;
-  height: 36px;
+  height: 32px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -179,7 +179,7 @@ select:focus, input:focus {
 .btn-group {
   display: flex;
   gap: 4px;
-  height: 36px;
+  height: 32px;
 }
 
 .btn-group .btn {
@@ -188,17 +188,23 @@ select:focus, input:focus {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  color: var(--fg-secondary);
+}
+
+.btn-group .btn:not(.active):hover {
+  background: var(--layer-1);
+  color: var(--fg);
 }
 
 .btn-group .btn.active {
-  background: var(--fg);
-  color: var(--bg);
-  border-color: var(--fg);
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
 }
 
 /* Buttons */
 .btn {
-  height: 36px;
+  height: 32px;
   background: var(--primary);
   color: #fff;
   border: none;

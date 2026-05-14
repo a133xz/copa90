@@ -213,7 +213,7 @@ function App() {
 
             <button 
               className="btn btn-primary" 
-              style={{ padding: '16px', fontSize: '14px', marginTop: '8px' }}
+              style={{ height: '48px', fontSize: '14px', marginTop: '8px' }}
               disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
               onClick={handleStartIngest}
             >
@@ -248,12 +248,12 @@ function App() {
             
             <button 
               className="btn btn-primary" 
-              style={{ padding: '16px', fontSize: '14px', marginTop: '8px' }}
+              style={{ height: '48px', fontSize: '14px', marginTop: '8px' }}
               disabled={isProcessing || !sourceDrive || !destDrive || sourceDrive === destDrive}
               onClick={handleStartBackup}
             >
               {isProcessing ? <RefreshCw className="spin" size={18} /> : <ArrowLeftRight size={18} />}
-              {isProcessing ? 'Syncing...' : 'Start Sync (Mirror)'}
+              {isProcessing ? 'Syncing...' : 'Start Sync'}
             </button>
           </>
         )}
