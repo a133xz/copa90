@@ -130,7 +130,7 @@ function App() {
   return (
     <div className="app-container">
       <aside className="sidebar">
-        <div className="logo">COPA</div>
+        <div className="logo">COPA90</div>
         
         <div 
           className={`nav-item ${view === 'ingest' ? 'active' : ''}`}
@@ -184,7 +184,7 @@ function App() {
 
             <div className="card">
               <div className="row" style={{ alignItems: 'flex-end' }}>
-                <div className="col" style={{ flex: '0 0 100px' }}>
+                <div className="col">
                   <label className="label">Day</label>
                   <input 
                     type="number" 
